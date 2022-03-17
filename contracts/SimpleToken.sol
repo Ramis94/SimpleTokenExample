@@ -8,7 +8,26 @@ contract SimpleToken is IERC20, Ownable {
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
-    string public _name = "Simple";
+
+    string private _name;
+    string private _symbol;
+
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+    }
+
+    function name() public view returns (string) {
+        return _name;
+    }
+
+    function symbol() public view returns (string) {
+        return _symbol;
+    }
+
+    function decimals() public view returns (uint8) {
+        return 18;
+    }
 
     function totalSupply() override external view returns (uint256) {
         return _totalSupply;
