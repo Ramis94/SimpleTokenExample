@@ -37,10 +37,9 @@ contract SimpleToken is IERC20, Ownable {
         return _balances[account];
     }
 
-    function transfer(address recipient, uint amount) override external returns (bool) {
-        _balances[msg.sender] -= amount;
-        _balances[recipient] += amount;
-        emit Transfer(msg.sender, recipient, amount);
+    function transfer(address to, uint amount) override external returns (bool) {
+        address from = msg.sender;
+        transferWithCheck(from, to, amount);
         return true;
     }
 
@@ -55,15 +54,22 @@ contract SimpleToken is IERC20, Ownable {
     }
 
     function transferFrom(
-        address sender,
-        address recipient,
+        address from,
+        address to,
         uint amount
     ) override external returns (bool) {
-        _allowances[sender][recipient] = _allowances[sender][recipient] - amount;
-        _balances[sender] -= amount;
-        _balances[recipient] += amount;
-        emit Transfer(sender, recipient, amount);
+        _allowances[from][to] = _allowances[from][to] - amount;
+        transferWithCheck(from, to, amount);
         return true;
+    }
+
+    function transferWithCheck(address from, address to, uint256 amount) private {
+        require(from != address(0), "transfer from the zero address");
+        require(to != address(0), "transfer to the zero address");
+        require(_balances[from] >= amount, "transfer amount exceeds balance");
+        _balances[from] -= amount;
+        _balances[to] += amount;
+        emit Transfer(from, to, amount);
     }
 
     function mint(uint amount) external onlyOwner {
