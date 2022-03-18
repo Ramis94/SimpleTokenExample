@@ -17,15 +17,15 @@ contract SimpleToken is IERC20, Ownable {
         _symbol = symbol_;
     }
 
-    function name() public view returns (string) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
-    function symbol() public view returns (string) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
-    function decimals() public view returns (uint8) {
+    function decimals() public pure returns (uint8) {
         return 18;
     }
 
@@ -43,7 +43,7 @@ contract SimpleToken is IERC20, Ownable {
         return true;
     }
 
-    function allowance(address owner, address spender) override external view returns (uint256) {
+    function allowance(address owner, address spender) override public view returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -58,14 +58,16 @@ contract SimpleToken is IERC20, Ownable {
         address to,
         uint amount
     ) override external returns (bool) {
-        _allowances[from][to] = _allowances[from][to] - amount;
         transferWithCheck(from, to, amount);
+        uint256 currentAllowance = allowance(from, to);
+        require(currentAllowance >= amount, "insufficient allowance");
+        _allowances[from][to] = currentAllowance - amount;
         return true;
     }
 
     function transferWithCheck(address from, address to, uint256 amount) private {
-        require(from != address(0), "transfer from the zero address");
-        require(to != address(0), "transfer to the zero address");
+        require(from != address(0), "transfer 'from' the zero address");
+        require(to != address(0), "transfer 'to' the zero address");
         require(_balances[from] >= amount, "transfer amount exceeds balance");
         _balances[from] -= amount;
         _balances[to] += amount;
