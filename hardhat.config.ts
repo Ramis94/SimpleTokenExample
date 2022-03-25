@@ -6,8 +6,12 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-web3";
 import "@typechain/hardhat";
 import "solidity-coverage";
-import "./tasks/token-task.ts";
-import "./tasks/staking-task.ts";
+import "./tasks/approve.ts";
+import "./tasks/claim.ts";
+import "./tasks/stake.ts";
+import "./tasks/transfer.ts";
+import "./tasks/transferFrom.ts";
+import "./tasks/unstake.ts";
 
 dotenv.config();
 
