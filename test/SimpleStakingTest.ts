@@ -27,7 +27,6 @@ describe("SimpleTokenTest", function() {
       owner
     )) as SimpleStaking__factory;
     simpleStaking = await simpleStakingFactory.deploy(
-      "SimpleStaking",
       lpMockToken.address
     );
     await simpleStaking.deployed;
@@ -156,7 +155,7 @@ describe("SimpleTokenTest", function() {
         .to.emit(simpleStaking, "Stake")
         .withArgs(addr1.address, toTransfer);
       await expect(simpleStaking.connect(addr1).claim())
-        .to.be.revertedWith("SimpleStaking: function claim will be available 10 minutes after the start stake");
+        .to.be.revertedWith("SimpleStaking: function claim will be available");
     });
     it("claim after 10 minutes after stake", async function() {
       const toTransfer = ethers.utils.parseEther("3");

@@ -3,9 +3,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "hardhat/console.sol";
-
-
 contract SimpleStaking is Ownable {
 
     event Stake(address indexed from, uint256 amount);
@@ -21,15 +18,19 @@ contract SimpleStaking is Ownable {
     using SafeERC20 for IERC20;
     mapping(address => Staker) public stakers;
     IERC20 private stakingToken;
-    string private name;
 
-    uint256 freezingTime = 20 minutes;
-    uint256 totalStaked;
-    uint8 percent = 20;
+    uint256 private totalStaked;
+    uint64 private freezingTime;
+    uint64 private freezingStartStake;
+    uint64 private depositTerm;
+    uint8 private percent;
 
-    constructor(string memory _name, address _stakingToken) {
-        name = _name;
+    constructor(address _stakingToken) {
         stakingToken = IERC20(_stakingToken);
+        freezingTime = 20 minutes;
+        freezingStartStake = 10 minutes;
+        depositTerm = 365 days;
+        percent = 20;
     }
 
     function stake(uint256 amount) public {
@@ -51,8 +52,8 @@ contract SimpleStaking is Ownable {
 
     function claim() public {
         Staker storage staker = stakers[_msgSender()];
-        require(block.timestamp > staker.startStakeTimestamp + 10 minutes,
-            "SimpleStaking: function claim will be available 10 minutes after the start stake"
+        require(block.timestamp > staker.startStakeTimestamp + freezingStartStake,
+            "SimpleStaking: function claim will be available"
         );
         uint256 toTransfer = calculateYieldTotal(staker);
         if (staker.claimedReward > 0) {
@@ -79,14 +80,22 @@ contract SimpleStaking is Ownable {
         if (timeStaked < 10 minutes) {
             return 0;
         }
-        return staker.balance * percent * timeStaked / 365 days / 100;
+        return staker.balance * percent * timeStaked / depositTerm / 100;
     }
 
-    function updateFreezingTime(uint _time) public onlyOwner {
+    function updateFreezingTime(uint64 _time) public onlyOwner {
         freezingTime = _time;
+    }
+
+    function updateStartStakeFreezingTime(uint64 _time) public onlyOwner {
+        freezingStartStake = _time;
     }
 
     function updatePercent(uint8 _percent) public onlyOwner {
         percent = _percent;
+    }
+
+    function updateDepositTerm(uint64 _depositTerm) public onlyOwner {
+        depositTerm = _depositTerm;
     }
 }
