@@ -201,30 +201,44 @@ describe("SimpleTokenTest", function() {
     });
   });
 
-  it("calculateYieldTotal for 1 year", async function() {
-    var date = new Date(Date.now());
-    date.setMinutes(date.getMinutes() + 20);
-    console.log("date = " + date);
-    console.log("dateT = " + date.getTime());
-
-    const startTime = await helper.time.latest();
-    await helper.time.increase(31536000);
-    const bigNumberPromise = await simpleStaking.calculateYieldTotal({
-      balance: ethers.utils.parseEther("10"),
-      startStakeTimestamp: startTime.toString(),
-      claimedReward: 0
+  describe("test other methods", function() {
+    it("calculateYieldTotal for 1 year", async function() {
+      const startTime = await helper.time.latest();
+      await helper.time.increase(31536000);
+      const bigNumberPromise = await simpleStaking.calculateYieldTotal({
+        balance: ethers.utils.parseEther("10"),
+        startStakeTimestamp: startTime.toString(),
+        claimedReward: 0
+      });
+      await expect(ethers.utils.formatEther(bigNumberPromise).startsWith("2.")).to.be.true;
     });
-    await expect(ethers.utils.formatEther(bigNumberPromise).startsWith("2.")).to.be.true;
-  });
 
-  it("calculateYieldTotal if timeStaked less 10 minutes", async function() {
-    const startTime = await helper.time.latest();
-    const bigNumberPromise = await simpleStaking.calculateYieldTotal({
-      balance: ethers.utils.parseEther("10"),
-      startStakeTimestamp: startTime.toString(),
-      claimedReward: 0
+    it("calculateYieldTotal if timeStaked less 10 minutes", async function() {
+      const startTime = await helper.time.latest();
+      const bigNumberPromise = await simpleStaking.calculateYieldTotal({
+        balance: ethers.utils.parseEther("10"),
+        startStakeTimestamp: startTime.toString(),
+        claimedReward: 0
+      });
+      const result = ethers.utils.formatEther(bigNumberPromise);
+      await expect(result).to.be.equal("0.0");
     });
-    const result = ethers.utils.formatEther(bigNumberPromise);
-    await expect(result).to.be.equal("0.0");
+
+    it("updateFreezingTime", async function() {
+      const contractTransaction = await simpleStaking.updateFreezingTime(123);
+      await expect(await contractTransaction.wait()).to.be.ok;
+    });
+    it("updateStartStakeFreezingTime", async function() {
+      const contractTransaction = await simpleStaking.updateStartStakeFreezingTime(123);
+      await expect(await contractTransaction.wait()).to.be.ok;
+    });
+    it("updatePercent", async function() {
+      const contractTransaction = await simpleStaking.updatePercent(123);
+      await expect(await contractTransaction.wait()).to.be.ok;
+    });
+    it("updateDepositTerm", async function() {
+      const contractTransaction = await simpleStaking.updateDepositTerm(123);
+      await expect(await contractTransaction.wait()).to.be.ok;
+    });
   });
 });
