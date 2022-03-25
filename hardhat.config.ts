@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-web3";
 import "@typechain/hardhat";
 import "solidity-coverage";
 import "./tasks/task.ts";
